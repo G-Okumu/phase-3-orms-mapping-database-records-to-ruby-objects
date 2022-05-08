@@ -49,4 +49,37 @@ class Song
     song.save
   end
 
+  # converting row data from datatabase into ruby object
+  def self.new_from_db(row)
+    # self.new is equivalent to Song.new
+    self.new(id: row[0], name: row[1], album: row[2])
+  end
+
+  # retrieve all songs from database
+  def self.all
+    sql = <<-SQL
+    SELECT *
+    FROM songs
+  SQL
+
+  DB[:conn].execute(sql).map do |song|
+    self.new_from_db(song)
+  end
+
+  end
+
+  #Find music by name
+  def self.find_by_name(name)
+    sql = <<-SQL
+      SELECT *
+      FROM songs
+      WHERE name = ?
+      LIMIT 1
+    SQL
+
+    DB[:conn].execute(sql, name).map do |row|
+      self.new_from_db(row)
+    end.first
+  end
+
 end
